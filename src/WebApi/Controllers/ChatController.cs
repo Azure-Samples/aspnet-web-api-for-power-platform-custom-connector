@@ -29,13 +29,19 @@ namespace WebApi.Controllers
         [HttpPost()]
         public async Task<IActionResult> Post([FromBody] ChatCompletionRequest value)
         {
-            var accessToken = this.Request.Headers["x-aoai-access-token"];
+            var accessToken = this.Request.Headers["x-aoai-access-token"].ToString();
             var apiKey = this._settings?.ApiKey;
             var deploymentId = this._settings?.DeploymentId;
             var apiVersion = this._settings?.ApiVersion;
 
-            //this._http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            this._http.DefaultRequestHeaders.Add("api-key", apiKey);
+            if (string.IsNullOrWhiteSpace(accessToken) != true)
+            {
+                this._http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            }
+            if (string.IsNullOrWhiteSpace(apiKey) != true)
+            {
+                this._http.DefaultRequestHeaders.Add("api-key", apiKey);
+            }
 
             var body = new Body3()
             {
