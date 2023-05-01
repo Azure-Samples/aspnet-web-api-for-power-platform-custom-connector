@@ -30,7 +30,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> Post([FromBody] ChatCompletionRequest value)
         {
             var accessToken = this.Request.Headers["x-aoai-access-token"];
-            var apiKey = "f692512cefd640c683109550e3d77316";
+            var apiKey = this._settings?.ApiKey;
             var deploymentId = this._settings?.DeploymentId;
             var apiVersion = this._settings?.ApiVersion;
 
