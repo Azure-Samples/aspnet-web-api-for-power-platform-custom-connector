@@ -1,57 +1,49 @@
-# Project Name
+# ASP.NET Web API for Power Platform Custom Connector (feat. Azure OpenAI Service)
 
-(short, 1-3 sentenced, description of the project)
+This is a sample application that shows:
 
-## Features
+1. How easy to intergate ASP.NET Web API with Azure API Management within Visual Studio
+1. How easy to set up an authorisation feature directly on Azure API Management
+1. How easy to export a Power Platform Custom Connector directly fron Azure API Management
 
-This project framework provides the following features:
+## Goal
 
-* Feature 1
-* Feature 2
-* ...
+- You can call Azure OpenAI Service API through ASP.NET Core Web API.
+- You can protect Azure OpenAI Service API with Azure Active Directory.
+- You can build and deploy an ASP.NET Core Web API to Azure App Service within Visual Studio.
+- You can integrate the Aure App Service instance with Azure API Management within Visual Studio.
+- You can create an access key to Azure Active Directory through Azure API Management.
+- You can create a Power Platform Custom Connector directly from Azure API Management.
 
 ## Getting Started
 
 ### Prerequisites
 
-(ideally very short, if any)
-
-- OS
-- Library version
-- ...
-
-### Installation
-
-(ideally very short)
-
-- npm install [package name]
-- mvn install
-- ...
+- GitHub Account
+- Azure Free Account
+- Azure OpenAI Service
+- Visual Studio
+- GitHub CLI
+- Azure CLI
+- Azure Developer CLI
 
 ### Quickstart
-(Add steps to get up and running quickly)
 
-1. git clone [repository clone url]
-2. cd [repository name]
-3. ...
+1. Fork this repository to your GitHub account.
+1. Follow the steps in the following order:
 
-
-## Demo
-
-A demo app is included to show how to use the project.
-
-To run the demo, follow these steps:
-
-(Add steps to start up the demo)
-
-1.
-2.
-3.
+    ```bash
+    # Provision resources on Azure
+    azd auth login
+    azd init
+    azd up
+    azd config pipeline
+    
+    # Deploy app to Azure
+    gh auth login
+    gh workflow run "Azure Dev" --repo {{GITHUB_USERNAME}}/aspnet-web-api-for-power-platform-custom-connector
+    ```
 
 ## Resources
 
-(Any additional resources or related projects)
-
-- Link to supporting information
-- Link to similar sample
-- ...
+TBD
