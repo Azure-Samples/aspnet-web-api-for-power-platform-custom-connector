@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.OpenApi.Models;
 
 using WebApi.Configurations;
 
@@ -8,7 +9,53 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
+    option.AddSecurityDefinition("access_token", new OpenApiSecurityScheme
+    {
+        Name = "x-aoai-access-token",
+        Description = "Please enter valid access token",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+    });
+    option.AddSecurityDefinition("api_key", new OpenApiSecurityScheme
+    {
+        Name = "x-aoai-api-key",
+        Description = "Please enter valid API Key",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "access_token"
+                }
+            },
+            new string[]{}
+        }
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "api_key"
+                }
+            },
+            new string[]{}
+        }
+    });
+});
 
 builder.Services.AddHttpClient();
 

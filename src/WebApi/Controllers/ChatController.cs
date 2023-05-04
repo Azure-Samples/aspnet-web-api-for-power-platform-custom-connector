@@ -12,6 +12,8 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Consumes("application/json")]
+    [Produces("application/json")]
     public class ChatController : ControllerBase
     {
         private readonly AzureOpenAISettings _settings;
@@ -27,18 +29,23 @@ namespace WebApi.Controllers
 
         // POST api/<ChatController>
         [HttpPost()]
+        [ProducesResponseType(typeof(ChatCompletionResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Post([FromBody] ChatCompletionRequest value)
         {
             var accessToken = this.Request.Headers["x-aoai-access-token"].ToString();
-            var apiKey = this._settings?.ApiKey;
+            var apiKey = this.Request.Headers["x-aoai-api-key"].ToString();
             var deploymentId = this._settings?.DeploymentId;
             var apiVersion = this._settings?.ApiVersion;
 
-            if (string.IsNullOrWhiteSpace(accessToken) != true)
+            if (CheckToken(accessToken, apiKey) == TokenExists.None)
+            {
+                return new BadRequestObjectResult("Please provide a valid security measure");
+            }
+            if (CheckToken(accessToken, apiKey) == TokenExists.Both || CheckToken(accessToken, apiKey) == TokenExists.AccessToken)
             {
                 this._http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             }
-            if (string.IsNullOrWhiteSpace(apiKey) != true)
+            if (CheckToken(accessToken, apiKey) == TokenExists.ApiKey)
             {
                 this._http.DefaultRequestHeaders.Add("api-key", apiKey);
             }
@@ -68,5 +75,30 @@ namespace WebApi.Controllers
 
             return new OkObjectResult(res);
         }
+
+        private static TokenExists CheckToken(string accessToken, string apiKey)
+        {
+            if (string.IsNullOrWhiteSpace(accessToken) != true && string.IsNullOrWhiteSpace(apiKey) != true)
+            {
+                return TokenExists.Both;
+            }
+            if (string.IsNullOrWhiteSpace(accessToken) != true)
+            {
+                return TokenExists.AccessToken;
+            }
+            if (string.IsNullOrWhiteSpace(apiKey) != true)
+            {
+                return TokenExists.ApiKey;
+            }
+            return TokenExists.None;
+        }
+    }
+
+    internal enum TokenExists
+    {
+        None,
+        AccessToken,
+        ApiKey,
+        Both
     }
 }
