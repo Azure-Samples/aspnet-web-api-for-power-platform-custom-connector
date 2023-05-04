@@ -32,23 +32,24 @@ namespace WebApi.Controllers
         [ProducesResponseType(typeof(ChatCompletionResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> Post([FromBody] ChatCompletionRequest value)
         {
-            var accessToken = this.Request.Headers["x-aoai-access-token"].ToString();
-            var apiKey = this.Request.Headers["x-aoai-api-key"].ToString();
+            //var accessToken = this.Request.Headers["x-aoai-access-token"].ToString();
+            var apiKey = this._settings?.ApiKey;
+            //var apiKey = this.Request.Headers["x-aoai-api-key"].ToString();
             var deploymentId = this._settings?.DeploymentId;
             var apiVersion = this._settings?.ApiVersion;
 
-            if (CheckToken(accessToken, apiKey) == TokenExists.None)
-            {
-                return new BadRequestObjectResult("Please provide a valid security measure");
-            }
-            if (CheckToken(accessToken, apiKey) == TokenExists.Both || CheckToken(accessToken, apiKey) == TokenExists.AccessToken)
-            {
-                this._http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            }
-            if (CheckToken(accessToken, apiKey) == TokenExists.ApiKey)
-            {
-                this._http.DefaultRequestHeaders.Add("api-key", apiKey);
-            }
+            //if (CheckToken(accessToken, apiKey) == TokenExists.None)
+            //{
+            //    return new BadRequestObjectResult("Please provide a valid security measure");
+            //}
+            //if (CheckToken(accessToken, apiKey) == TokenExists.Both || CheckToken(accessToken, apiKey) == TokenExists.AccessToken)
+            //{
+            //    this._http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            //}
+            //if (CheckToken(accessToken, apiKey) == TokenExists.ApiKey)
+            //{
+            this._http.DefaultRequestHeaders.Add("api-key", apiKey);
+            //}
 
             var body = new Body3()
             {
