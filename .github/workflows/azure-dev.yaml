@@ -47,5 +47,5 @@ jobs:
     - name: Deploy Web App to Azure
       uses: Azure/webapps-deploy@v2
       with:
-        app-name: 'appsvc-${{ env.AZURE_ENV_NAME }}-api'
+        app-name: 'appsvc-${{ secrets.AZURE_ENV_NAME }}-api'
         package: publish
