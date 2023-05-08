@@ -1,12 +1,12 @@
-﻿using WebApi.Models;
+using WebApi.Models;
 
 namespace WebApi.Extensions
 {
     public static class DictionaryExtensions
     {
-        public static T ToObject<T>(this IHeaderDictionary headers) where T : ApiRequestHeaders, new()
+        public static T ToObject<T>(this IHeaderDictionary headers) where T : ApiRequestHeaders
         {
-            var result = new T();
+            var result = Activator.CreateInstance<T>();
             foreach (var header in headers)
             {
                 switch (header.Key)
@@ -16,9 +16,7 @@ namespace WebApi.Extensions
                         break;
 
                     case "x-github-token":
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
                         (result as GitHubApiRequestHeaders).GitHubToken = header.Value;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
                         break;
                 }
             }

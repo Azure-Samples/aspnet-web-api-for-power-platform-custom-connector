@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.OpenApi.Models;
 
 using WebApi.Configurations;
+using WebApi.Helpers;
+using WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,19 +23,20 @@ var aoaiSettings = new AzureOpenAISettings();
 builder.Configuration.GetSection(AzureOpenAISettings.Name).Bind(aoaiSettings);
 builder.Services.AddSingleton(aoaiSettings);
 
+builder.Services.AddScoped<IOpenAIHelper, OpenAIHelper>();
+builder.Services.AddScoped<IValidationService, ValidationService>();
+builder.Services.AddScoped<IGitHubService, GitHubService>();
+builder.Services.AddScoped<IOpenAIService, OpenAIService>();
+
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
-#pragma warning disable ASP0000 // Do not call 'IServiceCollection.BuildServiceProvider' in 'ConfigureServices'
     var settings = builder.Services.BuildServiceProvider().GetService<OpenApiSettings>();
-#pragma warning restore ASP0000 // Do not call 'IServiceCollection.BuildServiceProvider' in 'ConfigureServices'
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
     option.SwaggerDoc(settings.Version, new OpenApiInfo { Title = settings.Title, Version = settings.Version });
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
     //option.OperationFilter<WebApiKeyAuthorizationOperationFilter>();
     var gitHubSecuritySchemeReference = new OpenApiReference

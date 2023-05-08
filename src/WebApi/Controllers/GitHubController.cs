@@ -1,128 +1,74 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
-using Octokit;
-
-using WebApi.Configurations;
-using WebApi.Extensions;
 using WebApi.Models;
+using WebApi.Services;
 
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GitHubController : BaseController
+    public class GitHubController : ControllerBase
     {
-        private readonly GitHubSettings _settings;
+        private readonly IValidationService _validation;
+        private readonly IGitHubService _github;
+        private readonly IOpenAIService _openai;
         private readonly ILogger<GitHubController> _logger;
 
-        public GitHubController(GitHubSettings settings, AuthSettings auth, OpenApiSettings openapi, ILogger<GitHubController> logger)
-            : base(auth, openapi)
+        public GitHubController(IValidationService validation, IGitHubService github, IOpenAIService openai, ILogger<GitHubController> logger)
         {
-            this._settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this._validation = validation ?? throw new ArgumentNullException(nameof(validation));
+            this._github = github ?? throw new ArgumentNullException(nameof(github));
+            this._openai = openai ?? throw new ArgumentNullException(nameof(openai));
             this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // GET: api/<GitHubController>
         [HttpGet("issues")]
-        public async Task<IActionResult> Get()
+        [ProducesResponseType(typeof(GitHubIssueCollectionResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetIssues()
         {
-            var headers = this.Request.Headers.ToObject<GitHubApiRequestHeaders>();
-#if !DEBUG
-            var apiKey = headers.ApiKey;
-            if (string.IsNullOrWhiteSpace(apiKey) == true)
+            var validation = this._validation.Validate<GitHubApiRequestHeaders>(this.Request.Headers);
+            if (validation.Validated != true)
             {
-                var error = new ErrorResponse() { Message = "Invalid API Key" };
-                return new UnauthorizedObjectResult(error);
-            }
-            if (apiKey != this.AuthSettings.ApiKey)
-            {
-                var error = new ErrorResponse() { Message = "Invalid API Key" };
-                return new UnauthorizedObjectResult(error);
-            }
-#endif
-            var gitHubToken = headers.GitHubToken;
-            if (string.IsNullOrWhiteSpace(gitHubToken) == true)
-            {
-                var error = new ErrorResponse() { Message = "Invalid GitHub Token" };
-                return new ObjectResult(error) { StatusCode = StatusCodes.Status403Forbidden };
+                return await Task.FromResult(validation.ActionResult);
             }
 
-            var user = this._settings.User;
-            var repository = this._settings.Repository;
-            var credentials = new Credentials(gitHubToken, AuthenticationType.Bearer);
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            var agent = this.OpenApiSettings.Title
-                            .Replace("GitHub", "", StringComparison.InvariantCultureIgnoreCase)
-                            .Replace(" ", "")
-                            .Trim();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-            var github = new GitHubClient(new ProductHeaderValue(agent))
-            {
-                Credentials = credentials
-            };
-
-            var issues = await github.Issue.GetAllForRepository(user, repository);
-            var res = new GitHubIssueCollectionResponse()
-            {
-                Items = issues.Select(p => new GitHubIssueItemResponse()
-                {
-                    Id = p.Id,
-                    Number = p.Number,
-                    Title = p.Title,
-                    Body = p.Body,
-                })
-            };
+            var res = await this._github.GetIssuesAsync(validation.Headers);
 
             return new OkObjectResult(res);
         }
 
-        // GET api/<GitHubController>/5
         [HttpGet("issues/{id}")]
-        public async Task<IActionResult> Get(int id)
+        [ProducesResponseType(typeof(GitHubIssueItemResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetIssue(int id)
         {
-            var headers = this.Request.Headers.ToObject<GitHubApiRequestHeaders>();
-#if !DEBUG
-            var apiKey = headers.ApiKey;
-            if (string.IsNullOrWhiteSpace(apiKey) == true)
+            var validation = this._validation.Validate<GitHubApiRequestHeaders>(this.Request.Headers);
+            if (validation.Validated != true)
             {
-                var error = new ErrorResponse() { Message = "Invalid API Key" };
-                return new UnauthorizedObjectResult(error);
-            }
-            if (apiKey != this.AuthSettings.ApiKey)
-            {
-                var error = new ErrorResponse() { Message = "Invalid API Key" };
-                return new UnauthorizedObjectResult(error);
-            }
-#endif
-            var gitHubToken = headers.GitHubToken;
-            if (string.IsNullOrWhiteSpace(gitHubToken) == true)
-            {
-                var error = new ErrorResponse() { Message = "Invalid GitHub Token" };
-                return new ObjectResult(error) { StatusCode = StatusCodes.Status403Forbidden };
+                return await Task.FromResult(validation.ActionResult);
             }
 
-            var user = this._settings.User;
-            var repository = this._settings.Repository;
-            var credentials = new Credentials(gitHubToken, AuthenticationType.Bearer);
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            var agent = this.OpenApiSettings.Title
-                            .Replace("GitHub", "", StringComparison.InvariantCultureIgnoreCase)
-                            .Replace(" ", "")
-                            .Trim();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-            var github = new GitHubClient(new ProductHeaderValue(agent))
-            {
-                Credentials = credentials
-            };
+            var res = await this._github.GetIssueAsync(id, validation.Headers);
 
-            var issue = await github.Issue.Get(user, repository, id);
-            var res = new GitHubIssueItemResponse()
+            return new OkObjectResult(res);
+        }
+
+        [HttpGet("issues/{id}/summary")]
+        [ProducesResponseType(typeof(GitHubIssueItemSummaryResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+        public async Task<IActionResult> GetIssueSummary(int id)
+        {
+            var validation = this._validation.Validate<GitHubApiRequestHeaders>(this.Request.Headers);
+            if (validation.Validated != true)
             {
-                Id = issue.Id,
-                Number = issue.Number,
-                Title = issue.Title,
-                Body = issue.Body,
-            };
+                return await Task.FromResult(validation.ActionResult);
+            }
+
+            var res = await this._github.GetIssueSummaryAsync(id, validation.Headers);
 
             return new OkObjectResult(res);
         }
