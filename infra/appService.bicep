@@ -77,6 +77,10 @@ resource appsvc 'Microsoft.Web/sites@2022-03-01' = {
           name: 'OpenApi__Version'
           value: 'v1'
         }
+        {
+          name: 'OpenApi__IncludeOnDeployment'
+          value: 'true'
+        }
         // GitHub
         {
           name: 'GitHub__Agent'

@@ -6,5 +6,6 @@
 
         public virtual string? Title { get; set; }
         public virtual string? Version { get; set; }
+        public virtual bool IncludeOnDeployment { get; set; }
     }
 }

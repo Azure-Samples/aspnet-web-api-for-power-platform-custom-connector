@@ -34,9 +34,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
-    var settings = builder.Services.BuildServiceProvider().GetService<OpenApiSettings>();
-
-    option.SwaggerDoc(settings.Version, new OpenApiInfo { Title = settings.Title, Version = settings.Version });
+    option.SwaggerDoc(openApiSettings.Version, new OpenApiInfo { Title = openApiSettings.Title, Version = openApiSettings.Version });
     option.AddServer(new OpenApiServer() { Url = "https://localhost:5001" });
 
     var gitHubSecuritySchemeReference = new OpenApiReference
@@ -97,15 +95,16 @@ builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
-//{
-app.UseSwagger();
-app.UseSwaggerUI();
+if (openApiSettings.IncludeOnDeployment == true)
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 
-// add a new rewrite option to redirect the root to /swagger
-app.UseRewriter(new RewriteOptions().AddRedirect("^$", "swagger"));
-//}
+    // add a new rewrite option to redirect the root to /swagger
+    app.UseRewriter(new RewriteOptions().AddRedirect("^$", "swagger"));
+}
 
 app.UseHttpsRedirection();
 
