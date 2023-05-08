@@ -37,8 +37,8 @@ builder.Services.AddSwaggerGen(option =>
     var settings = builder.Services.BuildServiceProvider().GetService<OpenApiSettings>();
 
     option.SwaggerDoc(settings.Version, new OpenApiInfo { Title = settings.Title, Version = settings.Version });
+    option.AddServer(new OpenApiServer() { Url = "https://localhost:5001" });
 
-    //option.OperationFilter<WebApiKeyAuthorizationOperationFilter>();
     var gitHubSecuritySchemeReference = new OpenApiReference
     {
         Id = "github_token",

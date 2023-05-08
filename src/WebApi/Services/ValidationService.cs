@@ -24,7 +24,7 @@ namespace WebApi.Services
         {
             var headers = requestHeaders.ToObject<T>();
             var result = new ValidationResult<T>() { Headers = headers };
-            //#if !DEBUG
+#if !DEBUG
             var apiKey = headers.ApiKey;
             if (string.IsNullOrWhiteSpace(apiKey) == true)
             {
@@ -40,7 +40,7 @@ namespace WebApi.Services
 
                 return result;
             }
-            //#endif
+#endif
             if (headers is not GitHubApiRequestHeaders)
             {
                 result.Validated = true;
