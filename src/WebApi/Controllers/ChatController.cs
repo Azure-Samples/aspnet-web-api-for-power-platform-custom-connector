@@ -18,8 +18,8 @@ namespace WebApi.Controllers
         private readonly AzureOpenAISettings _settings;
         private readonly ILogger<ChatController> _logger;
 
-        public ChatController(AzureOpenAISettings settings, AuthSettings auth, IHttpClientFactory httpClientFactory, ILogger<ChatController> logger)
-            : base(auth, httpClientFactory)
+        public ChatController(AzureOpenAISettings settings, AuthSettings auth, ILogger<ChatController> logger)
+            : base(auth)
         {
             this._settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this._logger = logger ?? throw new ArgumentNullException(nameof(logger));

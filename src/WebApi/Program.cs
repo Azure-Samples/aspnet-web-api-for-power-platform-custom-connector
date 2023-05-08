@@ -2,9 +2,24 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.OpenApi.Models;
 
 using WebApi.Configurations;
-using WebApi.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var authSettings = new AuthSettings();
+builder.Configuration.GetSection(AuthSettings.Name).Bind(authSettings);
+builder.Services.AddSingleton(authSettings);
+
+var openApiSettings = new OpenApiSettings();
+builder.Configuration.GetSection(OpenApiSettings.Name).Bind(openApiSettings);
+builder.Services.AddSingleton(openApiSettings);
+
+var gitHubSettings = new GitHubSettings();
+builder.Configuration.GetSection(GitHubSettings.Name).Bind(gitHubSettings);
+builder.Services.AddSingleton(gitHubSettings);
+
+var aoaiSettings = new AzureOpenAISettings();
+builder.Configuration.GetSection(AzureOpenAISettings.Name).Bind(aoaiSettings);
+builder.Services.AddSingleton(aoaiSettings);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -12,10 +27,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "GitHub Issue Sentiment Analysis", Version = "v1" });
+#pragma warning disable ASP0000 // Do not call 'IServiceCollection.BuildServiceProvider' in 'ConfigureServices'
+    var settings = builder.Services.BuildServiceProvider().GetService<OpenApiSettings>();
+#pragma warning restore ASP0000 // Do not call 'IServiceCollection.BuildServiceProvider' in 'ConfigureServices'
 
-    option.OperationFilter<WebApiKeyAuthorizationOperationFilter>();
-    // Add operation-level GitHub Token security requirement
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+    option.SwaggerDoc(settings.Version, new OpenApiInfo { Title = settings.Title, Version = settings.Version });
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+
+    //option.OperationFilter<WebApiKeyAuthorizationOperationFilter>();
     var gitHubSecuritySchemeReference = new OpenApiReference
     {
         Id = "github_token",
@@ -30,6 +50,17 @@ builder.Services.AddSwaggerGen(option =>
         Reference = gitHubSecuritySchemeReference
     };
     option.AddSecurityDefinition(gitHubSecuritySchemeReference.Id, gitHubSecurityScheme);
+    var gitHubSecurityRequirement = new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = gitHubSecuritySchemeReference
+            },
+            new string[]{}
+        }
+    };
+    option.AddSecurityRequirement(gitHubSecurityRequirement);
 
     // Add global API Key security requirement
     var webApiKeySecuritySchemeReference = new OpenApiReference
@@ -46,7 +77,7 @@ builder.Services.AddSwaggerGen(option =>
         Reference = webApiKeySecuritySchemeReference
     };
     option.AddSecurityDefinition(webApiKeySecuritySchemeReference.Id, webApiKeySecurityScheme);
-    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    var webApiKeySecurityRequirement = new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -55,18 +86,11 @@ builder.Services.AddSwaggerGen(option =>
             },
             new string[]{}
         }
-    });
+    };
+    option.AddSecurityRequirement(webApiKeySecurityRequirement);
 });
 
 builder.Services.AddHttpClient();
-
-var aoaiSettings = new AzureOpenAISettings();
-builder.Configuration.GetSection(AzureOpenAISettings.Name).Bind(aoaiSettings);
-builder.Services.AddSingleton(aoaiSettings);
-
-var authSettings = new AuthSettings();
-builder.Configuration.GetSection(AuthSettings.Name).Bind(authSettings);
-builder.Services.AddSingleton(authSettings);
 
 var app = builder.Build();
 
