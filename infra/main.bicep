@@ -48,6 +48,8 @@ module apim './provision-apiManagement.bicep' = {
     apiManagementPublisherName: apiManagementPublisherName
     apiManagementPublisherEmail: apiManagementPublisherEmail
     appsvcAuthKey: appsvc.outputs.authKey
+    apiManagementPolicyFormat: 'xml-link'
+    apiManagementPolicyValue: 'https://raw.githubusercontent.com/Azure-Samples/aspnet-web-api-for-power-platform-custom-connector/main/infra/apim-policy-global.xml'
   }
 }
 
@@ -60,13 +62,15 @@ module apis './provision-apiManagementApi.bicep' = {
   params: {
     name: name
     location: location
-    apiManagementApiName: appsvc.outputs.name
-    apiManagementApiDisplayName: appsvc.outputs.name
-    apiManagementApiDescription: appsvc.outputs.name
+    apiManagementApiName: 'GitHubIssueSummary'
+    apiManagementApiDisplayName: 'GitHubIssueSummary'
+    apiManagementApiDescription: 'GitHubIssueSummary'
     apiManagementApiServiceUrl: 'https://${appsvc.outputs.name}.azurewebsites.net'
     apiManagementApiPath: ''
     apiManagementApiFormat: 'openapi-link'
     apiManagementApiValue: 'https://raw.githubusercontent.com/Azure-Samples/aspnet-web-api-for-power-platform-custom-connector/main/infra/openapi.yaml'
     apiManagementApiSubscriptionRequired: true
+    apiManagementApiPolicyFormat: 'xml-link'
+    apiManagementApiPolicyValue: 'https://raw.githubusercontent.com/Azure-Samples/aspnet-web-api-for-power-platform-custom-connector/main/infra/apim-policy-githubissuesummary.xml'
   }
 }
