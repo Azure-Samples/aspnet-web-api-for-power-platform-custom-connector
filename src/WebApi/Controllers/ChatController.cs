@@ -1,12 +1,11 @@
-﻿using System.Net.Http.Headers;
+﻿using Azure;
+using Azure.AI.OpenAI;
 
 using Microsoft.AspNetCore.Mvc;
 
 using WebApi.Configurations;
+using WebApi.Extensions;
 using WebApi.Models;
-using WebApi.References.AzureOpenAI;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace WebApi.Controllers
 {
@@ -14,92 +13,65 @@ namespace WebApi.Controllers
     [ApiController]
     [Consumes("application/json")]
     [Produces("application/json")]
-    public class ChatController : ControllerBase
+    public class ChatController : BaseController
     {
         private readonly AzureOpenAISettings _settings;
-        private readonly HttpClient _http;
         private readonly ILogger<ChatController> _logger;
 
-        public ChatController(AzureOpenAISettings settings, IHttpClientFactory httpClientFactory, ILogger<ChatController> logger)
+        public ChatController(AzureOpenAISettings settings, AuthSettings auth, IHttpClientFactory httpClientFactory, ILogger<ChatController> logger)
+            : base(auth, httpClientFactory)
         {
             this._settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            this._http = (httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory))).CreateClient();
             this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         // POST api/<ChatController>
-        [HttpPost()]
+        [HttpPost("completions")]
         [ProducesResponseType(typeof(ChatCompletionResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Post([FromBody] ChatCompletionRequest value)
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Post([FromBody] ChatCompletionRequest req)
         {
-            //var accessToken = this.Request.Headers["x-aoai-access-token"].ToString();
-            var apiKey = this._settings?.ApiKey;
-            //var apiKey = this.Request.Headers["x-aoai-api-key"].ToString();
-            var deploymentId = this._settings?.DeploymentId;
-            var apiVersion = this._settings?.ApiVersion;
-
-            //if (CheckToken(accessToken, apiKey) == TokenExists.None)
-            //{
-            //    return new BadRequestObjectResult("Please provide a valid security measure");
-            //}
-            //if (CheckToken(accessToken, apiKey) == TokenExists.Both || CheckToken(accessToken, apiKey) == TokenExists.AccessToken)
-            //{
-            //    this._http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            //}
-            //if (CheckToken(accessToken, apiKey) == TokenExists.ApiKey)
-            //{
-            this._http.DefaultRequestHeaders.Add("api-key", apiKey);
-            //}
-
-            var body = new Body3()
+#if !DEBUG
+            var headers = this.Request.Headers.ToObject<ChatCompletionRequestHeaders>();
+            var apiKey = headers.ApiKey;
+            if (string.IsNullOrWhiteSpace(apiKey) == true)
             {
-                Messages = new List<Messages>()
-                {
-                    new Messages()
-                    {
-                        Role = MessagesRole.User,
-                        Content = value.Prompt
-                    },
-                },
-                Temperature = 0.7,
-                N = 1,
-                Max_tokens = 800,
-            };
-            var chatCompletion = new ChatCompletionsClient(this._http) { BaseUrl = this._settings?.BaseUrl };
-            var response = await chatCompletion.CreateAsync(deployment_id: deploymentId, api_version: apiVersion, body: body);
+                var error = new ErrorResponse() { Message = "Invalid API Key" };
+                return new UnauthorizedObjectResult(error);
+            }
+            if (apiKey != this.AuthSettings.ApiKey)
+            {
+                var error = new ErrorResponse() { Message = "Invalid API Key" };
+                return new UnauthorizedObjectResult(error);
+            }
+#endif
 
-            var result = response.Choices
-                                 .FirstOrDefault()?
-                                 .Message
-                                 .Content;
-            var res = new ChatCompletionResponse() { Completion = result };
+#pragma warning disable CS8604 // Possible null reference argument.
+            var endpoint = new Uri(this._settings?.Endpoint);
+            var credential = new AzureKeyCredential(this._settings?.ApiKey);
+            var deploymentId = this._settings?.DeploymentId;
+#pragma warning restore CS8604 // Possible null reference argument.
+
+            var client = new OpenAIClient(endpoint, credential);
+
+            var chatCompletionsOptions = new ChatCompletionsOptions()
+            {
+                Messages =
+                {
+                    new ChatMessage(ChatRole.System, "You are a helpful assistant."),
+                    new ChatMessage(ChatRole.User, req.Prompt)
+                },
+                MaxTokens = 800,
+                Temperature = 0.7f,
+                ChoicesPerPrompt = 1,
+            };
+
+            var result = await client.GetChatCompletionsAsync(deploymentId, chatCompletionsOptions);
+            var content = result.Value.Choices[0].Message.Content;
+
+            var res = new ChatCompletionResponse() { Completion = content };
 
             return new OkObjectResult(res);
         }
-
-        private static TokenExists CheckToken(string accessToken, string apiKey)
-        {
-            if (string.IsNullOrWhiteSpace(accessToken) != true && string.IsNullOrWhiteSpace(apiKey) != true)
-            {
-                return TokenExists.Both;
-            }
-            if (string.IsNullOrWhiteSpace(accessToken) != true)
-            {
-                return TokenExists.AccessToken;
-            }
-            if (string.IsNullOrWhiteSpace(apiKey) != true)
-            {
-                return TokenExists.ApiKey;
-            }
-            return TokenExists.None;
-        }
-    }
-
-    internal enum TokenExists
-    {
-        None,
-        AccessToken,
-        ApiKey,
-        Both
     }
 }

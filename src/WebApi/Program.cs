@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.OpenApi.Models;
 
 using WebApi.Configurations;
+using WebApi.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,57 +12,61 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "WebApi", Version = "v1" });
-    //option.AddSecurityDefinition("access_token", new OpenApiSecurityScheme
-    //{
-    //    Name = "x-aoai-access-token",
-    //    Description = "Please enter valid access token",
-    //    In = ParameterLocation.Header,
-    //    Type = SecuritySchemeType.ApiKey,
-    //});
-    //option.AddSecurityDefinition("api_key", new OpenApiSecurityScheme
-    //{
-    //    Name = "x-aoai-api-key",
-    //    Description = "Please enter valid API Key",
-    //    In = ParameterLocation.Header,
-    //    Type = SecuritySchemeType.ApiKey
-    //});
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "GitHub Issue Sentiment Analysis", Version = "v1" });
 
-    //option.AddSecurityRequirement(new OpenApiSecurityRequirement
-    //{
-    //    {
-    //        new OpenApiSecurityScheme
-    //        {
-    //            Reference = new OpenApiReference
-    //            {
-    //                Type = ReferenceType.SecurityScheme,
-    //                Id = "access_token"
-    //            }
-    //        },
-    //        new string[]{}
-    //    }
-    //});
-    //option.AddSecurityRequirement(new OpenApiSecurityRequirement
-    //{
-    //    {
-    //        new OpenApiSecurityScheme
-    //        {
-    //            Reference = new OpenApiReference
-    //            {
-    //                Type = ReferenceType.SecurityScheme,
-    //                Id = "api_key"
-    //            }
-    //        },
-    //        new string[]{}
-    //    }
-    //});
+    option.OperationFilter<WebApiKeyAuthorizationOperationFilter>();
+    // Add operation-level GitHub Token security requirement
+    var gitHubSecuritySchemeReference = new OpenApiReference
+    {
+        Id = "github_token",
+        Type = ReferenceType.SecurityScheme
+    };
+    var gitHubSecurityScheme = new OpenApiSecurityScheme
+    {
+        Name = "x-github-token",
+        Description = "Please enter valid GitHub Token",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Reference = gitHubSecuritySchemeReference
+    };
+    option.AddSecurityDefinition(gitHubSecuritySchemeReference.Id, gitHubSecurityScheme);
+
+    // Add global API Key security requirement
+    var webApiKeySecuritySchemeReference = new OpenApiReference
+    {
+        Id = "api_key",
+        Type = ReferenceType.SecurityScheme
+    };
+    var webApiKeySecurityScheme = new OpenApiSecurityScheme
+    {
+        Name = "x-webapi-key",
+        Description = "Please enter valid API Key",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Reference = webApiKeySecuritySchemeReference
+    };
+    option.AddSecurityDefinition(webApiKeySecuritySchemeReference.Id, webApiKeySecurityScheme);
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = webApiKeySecuritySchemeReference
+            },
+            new string[]{}
+        }
+    });
 });
 
 builder.Services.AddHttpClient();
 
-var settings = new AzureOpenAISettings();
-builder.Configuration.GetSection(AzureOpenAISettings.Name).Bind(settings);
-builder.Services.AddSingleton(settings);
+var aoaiSettings = new AzureOpenAISettings();
+builder.Configuration.GetSection(AzureOpenAISettings.Name).Bind(aoaiSettings);
+builder.Services.AddSingleton(aoaiSettings);
+
+var authSettings = new AuthSettings();
+builder.Configuration.GetSection(AuthSettings.Name).Bind(authSettings);
+builder.Services.AddSingleton(authSettings);
 
 var app = builder.Build();
 
