@@ -9,13 +9,10 @@ var hostingPlan = {
 resource asplan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: hostingPlan.name
   location: hostingPlan.location
-  kind: 'linux'
+  kind: 'app'
   sku: {
     name: 'S1'
     tier: 'Standard'
-  }
-  properties: {
-    reserved: true
   }
 }
 

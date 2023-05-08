@@ -46,11 +46,10 @@ var apiApp = {
 resource appsvc 'Microsoft.Web/sites@2022-03-01' = {
   name: apiApp.name
   location: apiApp.location
-  kind: 'app,linux'
+  kind: 'app'
   properties: {
     serverFarmId: asplan.id
     httpsOnly: true
-    reserved: true
     siteConfig: {
       alwaysOn: true
       appSettings: [
@@ -76,6 +75,10 @@ resource appsvc 'Microsoft.Web/sites@2022-03-01' = {
         {
           name: 'OpenApi__Version'
           value: 'v1'
+        }
+        {
+          name: 'OpenApi__Server'
+          value: 'https://${apiApp.name}.azurewebsites.net'
         }
         {
           name: 'OpenApi__IncludeOnDeployment'
