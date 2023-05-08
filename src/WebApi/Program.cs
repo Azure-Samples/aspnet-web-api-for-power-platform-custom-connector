@@ -98,14 +98,14 @@ builder.Services.AddHttpClient();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+//if (app.Environment.IsDevelopment())
+//{
+app.UseSwagger();
+app.UseSwaggerUI();
 
-    // add a new rewrite option to redirect the root to /swagger
-    app.UseRewriter(new RewriteOptions().AddRedirect("^$", "swagger"));
-}
+// add a new rewrite option to redirect the root to /swagger
+app.UseRewriter(new RewriteOptions().AddRedirect("^$", "swagger"));
+//}
 
 app.UseHttpsRedirection();
 
