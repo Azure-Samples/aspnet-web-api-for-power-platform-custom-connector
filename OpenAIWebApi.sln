@@ -10,6 +10,29 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4EA11BB2-34B8-4D8D-B95D-F7E9B1660AE7}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infra", "infra", "{0E220E38-06F8-4331-BE27-234C6BE8AE99}"
+	ProjectSection(SolutionItems) = preProject
+		infra\apim-policy-githubissuesummary.xml = infra\apim-policy-githubissuesummary.xml
+		infra\apim-policy-global.xml = infra\apim-policy-global.xml
+		infra\apiManagement.bicep = infra\apiManagement.bicep
+		infra\apiManagementApi.bicep = infra\apiManagementApi.bicep
+		infra\applicationInsights.bicep = infra\applicationInsights.bicep
+		infra\appService.bicep = infra\appService.bicep
+		infra\appServicePlan.bicep = infra\appServicePlan.bicep
+		infra\logAnalyticsWorkspace.bicep = infra\logAnalyticsWorkspace.bicep
+		infra\main.bicep = infra\main.bicep
+		infra\main.parameters.json = infra\main.parameters.json
+		infra\openAI.bicep = infra\openAI.bicep
+		infra\openapi.yaml = infra\openapi.yaml
+		infra\provision-apiManagement.bicep = infra\provision-apiManagement.bicep
+		infra\provision-apiManagementApi.bicep = infra\provision-apiManagementApi.bicep
+		infra\provision-appService.bicep = infra\provision-appService.bicep
+		infra\provision-cognitiveServices.bicep = infra\provision-cognitiveServices.bicep
+		infra\Purge-ApiManagement.ps1 = infra\Purge-ApiManagement.ps1
+		infra\Purge-CognitiveServices.ps1 = infra\Purge-CognitiveServices.ps1
 	EndProjectSection
 EndProject
 Global
