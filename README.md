@@ -45,7 +45,7 @@ This is a sample application that lists up GitHub issues on a specific repositor
     azd env set GITHUB_USERNAME {{GITHUB_USERNAME_FOR_ISSUES}}
     azd env set GITHUB_REPOSITORY {{GITHUB_REPOSITORY_NAME_FOR_ISSUES}}
     azd up
-    azd config pipeline
+    azd pipeline config
     
     # Deploy app to Azure
     gh auth login
