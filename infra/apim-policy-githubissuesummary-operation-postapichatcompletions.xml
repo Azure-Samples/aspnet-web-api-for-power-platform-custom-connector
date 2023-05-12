@@ -1,9 +1,7 @@
 <policies>
   <inbound>
     <base />
-    <set-header name="x-webapi-key" exists-action="override">
-      <value>{{APPSVC_KEY}}</value>
-    </set-header>
+    <rate-limit calls="1" renewal-period="60" remaining-calls-variable-name="remainingCallsPerSubscription" />
   </inbound>
   <backend>
     <base />

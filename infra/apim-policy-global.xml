@@ -10,7 +10,7 @@
 -->
 <policies>
   <inbound>
-    <cors allow-credentials="true">
+    <cors allow-credentials="false">
       <allowed-origins>
         <origin>https://apim-{{AZURE_ENV_NAME}}.azure-api.net</origin>
         <origin>https://make.powerapps.com</origin>
