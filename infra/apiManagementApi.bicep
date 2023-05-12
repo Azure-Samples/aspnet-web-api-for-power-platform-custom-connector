@@ -36,6 +36,7 @@ param apiManagementApiOperations array = [
     policy: {
       format: ''
       value: ''
+    }
   }
 ]
 param apiManagementProductName string = 'default'
