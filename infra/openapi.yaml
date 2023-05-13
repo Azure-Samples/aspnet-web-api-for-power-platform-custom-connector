@@ -9,6 +9,7 @@ paths:
     post:
       tags:
         - Chat
+      operationId: ChatCompletions
       requestBody:
         content:
           application/json:
@@ -37,6 +38,7 @@ paths:
     get:
       tags:
         - GitHub
+      operationId: Issues
       parameters:
         - name: User
           in: query
@@ -89,6 +91,7 @@ paths:
     get:
       tags:
         - GitHub
+      operationId: IssueById
       parameters:
         - name: id
           in: path
@@ -147,6 +150,7 @@ paths:
     get:
       tags:
         - GitHub
+      operationId: IssueSummaryById
       parameters:
         - name: id
           in: path

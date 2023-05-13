@@ -22,7 +22,7 @@ namespace WebApi.Controllers
             this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpPost("completions")]
+        [HttpPost("completions", Name = "ChatCompletions")]
         [ProducesResponseType(typeof(ChatCompletionResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]

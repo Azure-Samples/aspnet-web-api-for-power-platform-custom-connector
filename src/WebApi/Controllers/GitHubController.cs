@@ -22,7 +22,7 @@ namespace WebApi.Controllers
             this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpGet("issues")]
+        [HttpGet("issues", Name = "Issues")]
         [ProducesResponseType(typeof(GitHubIssueCollectionResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
@@ -45,7 +45,7 @@ namespace WebApi.Controllers
             return new OkObjectResult(res);
         }
 
-        [HttpGet("issues/{id}")]
+        [HttpGet("issues/{id}", Name = "IssueById")]
         [ProducesResponseType(typeof(GitHubIssueItemResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
@@ -68,7 +68,7 @@ namespace WebApi.Controllers
             return new OkObjectResult(res);
         }
 
-        [HttpGet("issues/{id}/summary")]
+        [HttpGet("issues/{id}/summary", Name = "IssueSummaryById")]
         [ProducesResponseType(typeof(GitHubIssueItemSummaryResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]

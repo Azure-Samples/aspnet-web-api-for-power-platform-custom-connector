@@ -33,31 +33,31 @@ param apiManagementApiPolicyValue string = '<!--\r\n  IMPORTANT:\r\n  - Policy e
   
 param apiManagementApiOperations array = [
   {
-    name: 'post-api-chat-completions'
+    name: 'ChatCompletions'
     policy: {
       format: 'xml-link'
-      value: 'https://raw.githubusercontent.com/Azure-Samples/aspnet-web-api-for-power-platform-custom-connector/main/infra/apim-policy-githubissuesummary-operation-postapichatcompletions.xml'
+      value: 'https://raw.githubusercontent.com/Azure-Samples/aspnet-web-api-for-power-platform-custom-connector/main/infra/apim-policy-githubissuesummary-operation-chatcompletions.xml'
     }
   }
   {
-    name: 'get-api-github-issues'
+    name: 'Issues'
     policy: {
         format: 'xml-link'
-        value: 'https://raw.githubusercontent.com/Azure-Samples/aspnet-web-api-for-power-platform-custom-connector/main/infra/apim-policy-githubissuesummary-operation-getapigithubissues.xml'
+        value: 'https://raw.githubusercontent.com/Azure-Samples/aspnet-web-api-for-power-platform-custom-connector/main/infra/apim-policy-githubissuesummary-operation-issues.xml'
     }  
   }
   {
-    name: 'get-api-github-issues-id'
+    name: 'IssueById'
     policy: {
       format: 'xml-link'
-      value: 'https://raw.githubusercontent.com/Azure-Samples/aspnet-web-api-for-power-platform-custom-connector/main/infra/apim-policy-githubissuesummary-operation-getapigithubissuesid.xml'
+      value: 'https://raw.githubusercontent.com/Azure-Samples/aspnet-web-api-for-power-platform-custom-connector/main/infra/apim-policy-githubissuesummary-operation-issuebyid.xml'
     }
   }
   {
-    name: 'get-api-github-issues-id-summary'
+    name: 'IssueSummaryById'
     policy: {
       format: 'xml-link'
-      value: 'https://raw.githubusercontent.com/Azure-Samples/aspnet-web-api-for-power-platform-custom-connector/main/infra/apim-policy-githubissuesummary-operation-getapigithubissuesidsummary.xml'
+      value: 'https://raw.githubusercontent.com/Azure-Samples/aspnet-web-api-for-power-platform-custom-connector/main/infra/apim-policy-githubissuesummary-operation-issuesummarybyid.xml'
     }
   }
 ]
