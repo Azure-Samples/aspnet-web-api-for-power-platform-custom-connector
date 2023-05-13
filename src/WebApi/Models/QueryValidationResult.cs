@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Models
 {
-    public class ValidationResult<T> where T : ApiRequestHeaders
+    public class QueryValidationResult<T> where T : ApiRequestQueries
     {
-        public virtual T? Headers { get; set; }
+        public virtual T? Queries { get; set; }
         public virtual bool Validated { get; set; }
         public virtual IActionResult? ActionResult { get; set; }
     }

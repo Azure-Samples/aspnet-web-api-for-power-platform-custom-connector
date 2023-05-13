@@ -37,6 +37,17 @@ paths:
     get:
       tags:
         - GitHub
+      parameters:
+        - name: User
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: Repository
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -85,6 +96,16 @@ paths:
           schema:
             type: integer
             format: int32
+        - name: User
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: Repository
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -133,6 +154,16 @@ paths:
           schema:
             type: integer
             format: int32
+        - name: User
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: Repository
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -173,11 +204,13 @@ paths:
 components:
   schemas:
     ChatCompletionRequest:
+      required:
+        - prompt
       type: object
       properties:
         prompt:
+          minLength: 1
           type: string
-          nullable: true
       additionalProperties: false
     ChatCompletionResponse:
       type: object

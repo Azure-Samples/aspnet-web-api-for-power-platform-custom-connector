@@ -8,11 +8,11 @@ namespace WebApi.Services
 {
     public interface IGitHubService
     {
-        Task<GitHubIssueCollectionResponse> GetIssuesAsync(GitHubApiRequestHeaders headers);
+        Task<GitHubIssueCollectionResponse> GetIssuesAsync(GitHubApiRequestHeaders headers, GitHubApiRequestQueries req);
 
-        Task<GitHubIssueItemResponse> GetIssueAsync(int id, GitHubApiRequestHeaders headers);
+        Task<GitHubIssueItemResponse> GetIssueAsync(int id, GitHubApiRequestHeaders headers, GitHubApiRequestQueries req);
 
-        Task<GitHubIssueItemSummaryResponse> GetIssueSummaryAsync(int id, GitHubApiRequestHeaders headers);
+        Task<GitHubIssueItemSummaryResponse> GetIssueSummaryAsync(int id, GitHubApiRequestHeaders headers, GitHubApiRequestQueries req);
     }
 
     public class GitHubService : IGitHubService
@@ -26,10 +26,10 @@ namespace WebApi.Services
             this._helper = helper ?? throw new ArgumentNullException(nameof(helper));
         }
 
-        public async Task<GitHubIssueCollectionResponse> GetIssuesAsync(GitHubApiRequestHeaders headers)
+        public async Task<GitHubIssueCollectionResponse> GetIssuesAsync(GitHubApiRequestHeaders headers, GitHubApiRequestQueries req)
         {
-            var user = this._settings.User;
-            var repository = this._settings.Repository;
+            var user = req.User;
+            var repository = req.Repository;
 
             var github = this.GetGitHubClient(headers);
 
@@ -48,10 +48,10 @@ namespace WebApi.Services
             return res;
         }
 
-        public async Task<GitHubIssueItemResponse> GetIssueAsync(int id, GitHubApiRequestHeaders headers)
+        public async Task<GitHubIssueItemResponse> GetIssueAsync(int id, GitHubApiRequestHeaders headers, GitHubApiRequestQueries req)
         {
-            var user = this._settings.User;
-            var repository = this._settings.Repository;
+            var user = req.User;
+            var repository = req.Repository;
 
             var github = this.GetGitHubClient(headers);
 
@@ -67,9 +67,9 @@ namespace WebApi.Services
             return res;
         }
 
-        public async Task<GitHubIssueItemSummaryResponse> GetIssueSummaryAsync(int id, GitHubApiRequestHeaders headers)
+        public async Task<GitHubIssueItemSummaryResponse> GetIssueSummaryAsync(int id, GitHubApiRequestHeaders headers, GitHubApiRequestQueries req)
         {
-            var issue = await this.GetIssueAsync(id, headers);
+            var issue = await this.GetIssueAsync(id, headers, req);
             var prompt = issue.Body;
             var completion = await this._helper.GetChatCompletionAsync(prompt);
 

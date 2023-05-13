@@ -8,7 +8,9 @@ namespace WebApi.Services
 {
     public interface IValidationService
     {
-        ValidationResult<T> Validate<T>(IHeaderDictionary headers) where T : ApiRequestHeaders;
+        HeaderValidationResult<T> ValidateHeaders<T>(IHeaderDictionary requestHeaders) where T : ApiRequestHeaders;
+        QueryValidationResult<T> ValidateQueries<T>(T requestQueries) where T : ApiRequestQueries;
+        PayloadValidationResult<T> ValidatePayload<T>(T requestPayload) where T : ApiPayload;
     }
 
     public class ValidationService : IValidationService
@@ -20,10 +22,10 @@ namespace WebApi.Services
             this._settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        public ValidationResult<T> Validate<T>(IHeaderDictionary requestHeaders) where T : ApiRequestHeaders
+        public HeaderValidationResult<T> ValidateHeaders<T>(IHeaderDictionary requestHeaders) where T : ApiRequestHeaders
         {
             var headers = requestHeaders.ToObject<T>();
-            var result = new ValidationResult<T>() { Headers = headers };
+            var result = new HeaderValidationResult<T>() { Headers = headers };
 #if !DEBUG
             var apiKey = headers.ApiKey;
             if (string.IsNullOrWhiteSpace(apiKey) == true)
@@ -54,6 +56,62 @@ namespace WebApi.Services
             {
                 var error = new ErrorResponse() { Message = "Invalid GitHub Token" };
                 result.ActionResult = new ObjectResult(error) { StatusCode = StatusCodes.Status403Forbidden };
+
+                return result;
+            }
+
+            result.Validated = true;
+
+            return result;
+        }
+ 
+        public QueryValidationResult<T> ValidateQueries<T>(T requestQueries) where T : ApiRequestQueries
+        {
+            var result = new QueryValidationResult<T>() { Queries = requestQueries };
+            if (requestQueries is not GitHubApiRequestQueries)
+            {
+                result.Validated = true;
+
+                return result;
+            }
+
+            var queries = requestQueries as GitHubApiRequestQueries;
+            if (string.IsNullOrWhiteSpace(queries.User))
+            {
+                var error = new ErrorResponse() { Message = "No GitHub details found" };
+                result.ActionResult = new ObjectResult(error) { StatusCode = StatusCodes.Status404NotFound };
+
+                return result;
+            }
+
+            if (string.IsNullOrWhiteSpace(queries.Repository))
+            {
+                var error = new ErrorResponse() { Message = "No GitHub details found" };
+                result.ActionResult = new ObjectResult(error) { StatusCode = StatusCodes.Status404NotFound };
+
+                return result;
+            }
+
+            result.Validated = true;
+
+            return result;
+        }
+
+        public PayloadValidationResult<T> ValidatePayload<T>(T requestPayload) where T : ApiPayload
+        {
+            var result = new PayloadValidationResult<T>() { Payload = requestPayload };
+            if (requestPayload is not ChatCompletionRequest)
+            {
+                result.Validated = true;
+
+                return result;
+            }
+
+            var payload = requestPayload as ChatCompletionRequest;
+            if (string.IsNullOrWhiteSpace(payload.Prompt))
+            {
+                var error = new ErrorResponse() { Message = "No payload found" };
+                result.ActionResult = new ObjectResult(error) { StatusCode = StatusCodes.Status400BadRequest };
 
                 return result;
             }

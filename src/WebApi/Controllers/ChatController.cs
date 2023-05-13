@@ -28,13 +28,19 @@ namespace WebApi.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> Post([FromBody] ChatCompletionRequest req)
         {
-            var validation = this._validation.Validate<ChatCompletionRequestHeaders>(this.Request.Headers);
+            var validation = this._validation.ValidateHeaders<ChatCompletionRequestHeaders>(this.Request.Headers);
             if (validation.Validated != true)
             {
                 return await Task.FromResult(validation.ActionResult);
             }
 
-            var res = await this._openai.GetChatCompletionAsync(req.Prompt);
+            var pvr = this._validation.ValidatePayload(req);
+            if (pvr.Validated != true)
+            {
+                return await Task.FromResult(pvr.ActionResult);
+            }
+
+            var res = await this._openai.GetChatCompletionAsync(pvr.Payload.Prompt);
 
             return new OkObjectResult(res);
         }
