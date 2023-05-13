@@ -5,7 +5,5 @@ namespace WebApi.Configurations
         public const string Name = "GitHub";
 
         public virtual string? Agent { get; set; }
-        public virtual string? User { get; set; }
-        public virtual string? Repository { get; set; }
     }
 }
