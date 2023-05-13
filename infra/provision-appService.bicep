@@ -7,8 +7,6 @@ param aoaiApiEndpoint string
 param aoaiApiDeploymentId string
 @secure()
 param appsvcAuthKey string
-// param gitHubUsername string
-// param gitHubRepository string
 
 module wrkspc './logAnalyticsWorkspace.bicep' = {
   name: 'LogAnalyticsWorkspace_AppService'
@@ -47,8 +45,6 @@ module appsvc './appService.bicep' = {
     aoaiApiEndpoint: aoaiApiEndpoint
     aoaiApiDeploymentId: aoaiApiDeploymentId
     appsvcAuthKey: appsvcAuthKey
-    // gitHubUsername: gitHubUsername
-    // gitHubRepository: gitHubRepository
   }
 }
 

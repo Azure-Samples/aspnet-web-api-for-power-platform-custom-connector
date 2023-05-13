@@ -10,12 +10,6 @@
     },
     "appServiceKey": {
       "value": "${AZURE_APPSERVICE_KEY}"
-    },
-    "gitHubUsername": {
-      "value": "${GITHUB_USERNAME}"
-    },
-    "gitHubRepository": {
-      "value": "${GITHUB_REPOSITORY}"
     }
   }
 }

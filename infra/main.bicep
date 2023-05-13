@@ -7,8 +7,6 @@ param apiManagementPublisherName string = 'Ask Me Anything Bot'
 param apiManagementPublisherEmail string = 'apim@contoso.com'
 @secure()
 param appServiceKey string
-// param gitHubUsername string
-// param gitHubRepository string
 
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: 'rg-${name}'
@@ -34,8 +32,6 @@ module appsvc './provision-appService.bicep' = {
     aoaiApiEndpoint: cogsvc.outputs.aoaiApiEndpoint
     aoaiApiDeploymentId: cogsvc.outputs.aoaiApiDeploymentId
     appsvcAuthKey: appServiceKey
-    // gitHubUsername: gitHubUsername
-    // gitHubRepository: gitHubRepository
   }
 }
     

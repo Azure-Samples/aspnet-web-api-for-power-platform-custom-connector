@@ -15,8 +15,6 @@ param aoaiApiDeploymentId string
 
 @secure()
 param appsvcAuthKey string
-// param gitHubUsername string
-// param gitHubRepository string
 
 var asplan = {
   id: appServicePlanId
@@ -37,10 +35,6 @@ var apiApp = {
   name: 'appsvc-${name}'
   location: location
   authKey: appsvcAuthKey
-//   github: {
-//     username: gitHubUsername
-//     repository: gitHubRepository
-//   }
 }
 
 resource appsvc 'Microsoft.Web/sites@2022-03-01' = {
@@ -89,14 +83,6 @@ resource appsvc 'Microsoft.Web/sites@2022-03-01' = {
           name: 'GitHub__Agent'
           value: 'Issue Summary Bot'
         }
-        // {
-        //   name: 'GitHub__User'
-        //   value: apiApp.github.username
-        // }
-        // {
-        //   name: 'GitHub__Repository'
-        //   value: apiApp.github.repository
-        // }
         // Azure OpenAI Service
         {
           name: 'AOAI__ApiKey'
