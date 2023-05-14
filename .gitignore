@@ -399,3 +399,7 @@ FodyWeavers.xsd
 
 appsettings.Development.json
 .azure
+
+Properties/ServiceDependencies/*
+Properties/serviceDependencies.json
+Properties/serviceDependencies.*.json
