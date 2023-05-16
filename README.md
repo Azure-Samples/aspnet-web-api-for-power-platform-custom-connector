@@ -35,15 +35,12 @@ This is a sample application that lists up GitHub issues on a specific repositor
 1. Follow the steps in the following order.
 
    - The `{{RANDOM_KEY}}` value can be any string. You can get a random string like `$(New-Guid).Guid` in PowerShell for example.
-   - Both `{{GITHUB_USERNAME_FOR_ISSUES}}` and `{{GITHUB_REPOSITORY_NAME_FOR_ISSUES}}` values are the GitHub username and repository name to see the issues.
 
     ```bash
     # Provision resources on Azure
     azd auth login
     azd init
     azd env set AZURE_APPSERVICE_KEY {{RANDOM_KEY}}
-    azd env set GITHUB_USERNAME {{GITHUB_USERNAME_FOR_ISSUES}}
-    azd env set GITHUB_REPOSITORY {{GITHUB_REPOSITORY_NAME_FOR_ISSUES}}
     azd up
     azd pipeline config
     
